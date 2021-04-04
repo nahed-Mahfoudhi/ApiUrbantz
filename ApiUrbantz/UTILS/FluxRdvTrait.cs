@@ -24,97 +24,10 @@ namespace ApiUrbantz.UTILS
             #region creation de l'objet Interventions contenant le meme nombre d'intervention que le trajet list de l'objet Borderau
             ListFluxLivUrbants FluxRdvUrb = new ListFluxLivUrbants();
             List<FluxLivUrbantz> FluxRdvListUrbz = new List<FluxLivUrbantz>();
-            foreach (var item in FluxRdv)
-            {
-                FluxRdvListUrbz.Add(new FluxLivUrbantz());
-            }
-            FluxRdvUrb.ListFluxLivUrbantz = FluxRdvListUrbz;
-            #endregion
 
-            for (int i = 0; i < FluxRdvListUrbz.Count; i++)
-            {
-                //Traitement du numero de téléphone
-                var telSms = "";
-                if ((FluxRdv[i].Commande.PortableDestinataire != null) && ((FluxRdv[i].Commande.PortableDestinataire.Substring(0, 2) == "06") || (FluxRdv[i].Commande.PortableDestinataire.Substring(0, 2) == "07")))
-
-                    telSms = FluxRdv[i].Commande.PortableDestinataire;
-
-                else if ((FluxRdv[i].Commande.PortableDestinataire != null) && ((FluxRdv[i].Commande.PortableDestinataire.Substring(0, 4) == "+337") || (FluxRdv[i].Commande.PortableDestinataire.Substring(0, 4) == "+336")))
-
-                    telSms = FluxRdv[i].Commande.PortableDestinataire;
-
-                else if ((FluxRdv[i].Commande.PortableDestinataire != null) && (FluxRdv[i].Commande.PortableDestinataire.Substring(0, 4) == "0044"))
-
-                    telSms = FluxRdv[i].Commande.PortableDestinataire;
-
-                else if ((FluxRdv[i].Commande.TelephoneDestinataire != null) && ((FluxRdv[i].Commande.TelephoneDestinataire.Substring(0, 2) == "06") || (FluxRdv[i].Commande.TelephoneDestinataire.Substring(0, 2) == "07")))
-                    telSms = FluxRdv[i].Commande.TelephoneDestinataire;
-
-                else if ((FluxRdv[i].Commande.TelephoneDestinataire != null) && ((FluxRdv[i].Commande.TelephoneDestinataire.Substring(0, 4) == "+337") || (FluxRdv[i].Commande.TelephoneDestinataire.Substring(0, 4) == "+336")))
-                    telSms = FluxRdv[i].Commande.TelephoneDestinataire;
-
-                else if ((FluxRdv[i].Commande.TelephoneDestinataire != null) && (FluxRdv[i].Commande.TelephoneDestinataire.Substring(0, 4) == "0044"))
-
-                    telSms = FluxRdv[i].Commande.TelephoneDestinataire;
-
-                else if ((FluxRdv[i].Commande.PortableDestinataire == null) && (FluxRdv[i].Commande.TelephoneDestinataire == null))
-                    telSms = null;
-
-                var TelDest = "";
-                if ((telSms != null) && ((telSms.Substring(0, 2) == "06") || (telSms.Substring(0, 2) == "07")))
-                {
-
-                    TelDest = string.Concat("+33", telSms.Substring(1, telSms.Length - 1));
-                }
-                else if ((telSms != null) && (telSms.Substring(0, 3) == "+33"))
-                {
-
-                    TelDest = telSms;
-                }
-
-                else if ((telSms != null) && (telSms.Substring(0, 4) == "0044"))
-                {
-
-                    TelDest = string.Concat("+", telSms.Substring(2, telSms.Length - 2));
-                }
-                // Traitement du nom du donneur d'ordre
-
-                string Do = "";
-                if (FluxRdv[i].Commande.DonneurOrdre.ServiceTiersList?.Count > 0)
-
-                    if (FluxRdv[i].Commande.DonneurOrdre.ServiceTiersList[0].Interlocuteur == null)
-                    {
-
-                        Do = (FluxRdv[i].Commande.DonneurOrdre.Nom);
-                    }
-                    else Do = FluxRdv[i].Commande.DonneurOrdre.ServiceTiersList[0].Interlocuteur;
+            FluxRdvUrb.ListFluxLivUrbantz = FluxRdv.Convert().ToList();
 
 
-                FluxRdvListUrbz[i].taskId = FluxRdv[i].Commande.IdCommandeEntete;
-                FluxRdvListUrbz[i].hubName = string.Concat("Agence ", FluxRdv[i].CodeAgence.ToString());
-                FluxRdvListUrbz[i].client = Do;
-                //infos du contact
-                FluxRdvListUrbz[i].contact.person = FluxRdv[i].Commande.NomDestinataire;
-                FluxRdvListUrbz[i].contact.name = FluxRdv[i].Commande.NomDestinataire;
-                FluxRdvListUrbz[i].contact.phone = TelDest;
-                FluxRdvListUrbz[i].contact.email = FluxRdv[i].Commande.MailDestinataire;
-                FluxRdvListUrbz[i].contact.language = "Fr";
-                //infos adresse 
-                FluxRdvListUrbz[i].address.street = "rue les chemins";
-                FluxRdvListUrbz[i].address.zip = "35120";
-                FluxRdvListUrbz[i].address.city = "Rennes";
-                FluxRdvListUrbz[i].address.country = "Fr";
-                FluxRdvListUrbz[i].price = null;
-                FluxRdvListUrbz[i].dimensions.weight = "";
-                FluxRdvListUrbz[i].dimensions.volume = "";
-                FluxRdvListUrbz[i].dimensions.price = "";
-                FluxRdvListUrbz[i].quantity = "";
-                FluxRdvListUrbz[i].type = "delivery";
-                FluxRdvListUrbz[i].serviceTime = 0;
-
-
-
-            }
             var json = new JavaScriptSerializer().Serialize(FluxRdvUrb.ListFluxLivUrbantz);
             json = json.Replace("\u0027", "");
             var passflux = PassComplexDat(FluxRdvUrb.ListFluxLivUrbantz);

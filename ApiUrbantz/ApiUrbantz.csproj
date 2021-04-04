@@ -214,7 +214,9 @@
     <Compile Include="UTILS\EmissionLivraisonTrait.cs" />
     <Compile Include="UTILS\EnvoiFlux.cs" />
     <Compile Include="UTILS\FluxRdvTrait.cs" />
+    <Compile Include="UTILS\MapperExtension.cs" />
     <Compile Include="UTILS\RoudValidatedRetourTrait.cs" />
+    <Compile Include="UTILS\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />

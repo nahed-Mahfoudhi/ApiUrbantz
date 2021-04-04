@@ -59,9 +59,9 @@ namespace ApiUrbantz.Models
 
     public class Dimensions
     {
-        public string weight { get; set; }
-        public string volume { get; set; }
-        public string price { get; set; }
+        public string weight { get; set; } = string.Empty;
+        public string volume { get; set; } = string.Empty;
+        public string price { get; set; } = string.Empty;
     }
     public class Damaged
     {
@@ -104,10 +104,10 @@ namespace ApiUrbantz.Models
         public string instructions { get; set; }
         public TimeWindow timeWindow { get; set; }
         public DateTime date { get; set; }
-        public double? price { get; set; }
+        public double? price { get; set; } = null;
         public IList<Item> items { get; set; }
         public Dimensions dimensions { get; set; }
-        public string quantity { get; set; }
+        public string quantity { get; set; } = string.Empty;
         public string type { get; set; }
         public string taskReference { get; set; }
         public int serviceTime { get; set; }
