@@ -22,5 +22,22 @@ namespace ApiUrbantz.UTILS
                 serviceTime = 0 
             });
         }
+
+
+        //public static IEnumerable<FluxLivUrbantz> GetDataFromRouteList(this List<TrajetList> trajetList)
+        //{
+        //    return trajetList.Select(x => new FluxLivUrbantz()
+        //    {
+        //        taskId = x.CommandeEntete.NumeroRecepisse,
+        //        hubName = string.Concat("Agence ", x.CodeAgence.ToString()),
+        //        client = x.Commande.DonneurOrdre.ServiceTiersList?.Count > 0 ? x.Commande.DonneurOrdre.ServiceTiersList[0].Interlocuteur == null ? x.Commande.DonneurOrdre.Nom : x.Commande.DonneurOrdre.ServiceTiersList[0].Interlocuteur : string.Empty,
+        //        contact = new Contact { person = x.Commande.NomDestinataire, name = x.Commande.NomDestinataire, phone = Utils.GetFormattedPhoneNumber(x.Commande.PortableDestinataire) == null ? Utils.GetFormattedPhoneNumber(x.Commande.TelephoneDestinataire) == null ? string.Empty : Utils.GetFormattedPhoneNumber(x.Commande.TelephoneDestinataire) : Utils.GetFormattedPhoneNumber(x.Commande.PortableDestinataire), email = x.Commande.MailDestinataire, language = "Fr" },
+        //        address = new Address { street = "rue les chemins", zip = "35120", city = "Rennes", country = "Fr" },
+        //        price = null,
+        //        type = "delivery",
+        //        serviceTime = 0
+        //    });
+        //}
+
     }
 }

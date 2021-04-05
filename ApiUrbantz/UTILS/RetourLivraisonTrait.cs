@@ -31,24 +31,7 @@ namespace ApiUrbantz.UTILS
             {
                 CodEvmt = "IE78";
             }
-        //if ((TaskChangedModel.progress == "COMPLETED") && (TaskChangedModel.status == "DELIVERED") && (TaskChangedModel.execution != null)
-        //        && (TaskChangedModel.execution.signature != null) && (TaskChangedModel.execution.signature.data != null))
-        //    {
-        //        CodEvmt = "PODSIG";
-        //    }
-
-        //    if ((TaskChangedModel.progress == "COMPLETED") && (TaskChangedModel.status == "DELIVERED") 
-        //       && (TaskChangedModel.metadata != null) && (TaskChangedModel.metadata.Photos_livraison != null) )
-        //    {
-        //        CodEvmt = "PODPHO";
-        //    }
-
-        //   if ((TaskChangedModel.progress == "COMPLETED") && (TaskChangedModel.status == "NOT DELIVERED")
-        //       && (TaskChangedModel.metadata != null) && (TaskChangedModel.metadata.Photos_echec_livraison != null) )
-        //    {
-        //        CodEvmt = "PODPHO";
-        //    }
-
+         
 
           if ((TaskChangedModel.progress == "COMPLETED") && (TaskChangedModel.status == "DELIVERED") && (TaskChangedModel.metadata != null))
             {

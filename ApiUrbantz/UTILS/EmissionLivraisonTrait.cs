@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Mail;
 using System.IO;
 using System.Text.RegularExpressions;
+using static ApiUrbantz.UTILS.Utils;
 
 namespace ApiUrbantz.UTILS
 {
@@ -33,84 +34,16 @@ namespace ApiUrbantz.UTILS
             #region Remplir le modèle flux livraison de Mroad à Urbantz
             for (int i = 0; i < FluxVsUrbantz.Count; i++)
             {
-
-                var TypeLivraison = "";
-                if (FluxMroad.TrajetList[i].CommandeEntete.Trafic.Code == "LIV")
-                {
-                    TypeLivraison = "delivery";
-
-                }
-                else if (FluxMroad.TrajetList[i].CommandeEntete.Trafic.Code == "REP")
-                {
-                    TypeLivraison = "pickup";
-                }
-                else if (FluxMroad.TrajetList[i].CommandeEntete.Trafic.Code == "SAV")
-                {
-                    FluxMroad.TrajetList[i].CommandeEntete.Trafic.Code = "LIV";
-                    TypeLivraison = "delivery";
-                }
-                #region 
-                //calcul de numero de telephone
-                var Telephone = "";
-                var TelInternational = "";
-                if (FluxMroad.TrajetList[i].LocaliteArrivee.CodePays=="FR")
-                {
-                         if ((FluxMroad.TrajetList[i].CommandeEntete.PortableDestinataire != null) && ((FluxMroad.TrajetList[i].CommandeEntete.PortableDestinataire.Substring(0, 2) == "06")
-                    || (FluxMroad.TrajetList[i].CommandeEntete.PortableDestinataire.Substring(0, 2) == "07"))
-                    )
-
-                {
-                    Telephone = FluxMroad.TrajetList[i].CommandeEntete.PortableDestinataire;
-                }
-                else if (FluxMroad.TrajetList[i].CommandeEntete.TelephoneDestinataire != null)
-                {
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.TelephoneDestinataire.Substring(0, 2) == "06")
-                    || (FluxMroad.TrajetList[i].CommandeEntete.TelephoneDestinataire.Substring(0, 2) == "07"))
-
-                    {
-                        Telephone = FluxMroad.TrajetList[i].CommandeEntete.TelephoneDestinataire;
-                    }
-                }
-                    //changement du téléphone au format international
-
-                  
-                    if (Telephone != "")
-                    {
-                        if ((Telephone.Substring(0, 2) == "06") || (Telephone.Substring(0, 2) == "07"))
-                        {
-                            TelInternational = string.Concat("+33", Telephone.Substring(1, Telephone.Length - 1));
-                        }
-                        else if (Telephone.Substring(0, 3) == "+33")
-                            TelInternational = Telephone;
-                    }
-                }
-
-
-                else if ((FluxMroad.TrajetList[i].LocaliteArrivee.CodePays == "LU")|| (FluxMroad.TrajetList[i].LocaliteArrivee.CodePays == "BE"))
-
-                {
-                    if (FluxMroad.TrajetList[i].CommandeEntete.PortableDestinataire != null)
-                    {
-                        TelInternational = FluxMroad.TrajetList[i].CommandeEntete.PortableDestinataire;
-                    }
-                    else
-                    {
-                        TelInternational = FluxMroad.TrajetList[i].CommandeEntete.TelephoneDestinataire;
-                    }
-                }
-                
-                #endregion
-
                 
                 FluxVsUrbantz[i].taskId = FluxMroad.TrajetList[i].CommandeEntete.NumeroRecepisse;
                 FluxVsUrbantz[i].hubName = string.Concat("VIR", FluxMroad.Agence.CodeNumerique);
-                FluxVsUrbantz[i].type = TypeLivraison;
+                FluxVsUrbantz[i].type = GetDeliveryTypeByTraficCode(FluxMroad.TrajetList[i].CommandeEntete.Trafic.Code);
                 FluxVsUrbantz[i].taskReference = FluxMroad.TrajetList[i].CommandeEntete.IdCommandeEntete.ToString();
                 //Nom du Do
                 FluxVsUrbantz[i].client = FluxMroad.TrajetList[i].CommandeEntete.Payeur.Nom;
                 FluxVsUrbantz[i].contact.email = FluxMroad.TrajetList[i].CommandeEntete.MailDestinataire;
                 FluxVsUrbantz[i].contact.language = FluxMroad.TrajetList[i].LocaliteArrivee.CodePays;
-                FluxVsUrbantz[i].contact.phone = TelInternational;
+                FluxVsUrbantz[i].contact.phone = GetPhoneNumberByCodePays(FluxMroad.TrajetList[i].LocaliteArrivee.CodePays, FluxMroad.TrajetList[i].CommandeEntete);
                 FluxVsUrbantz[i].contact.name = FluxMroad.TrajetList[i].CommandeEntete.NomDestinataire;
                 FluxVsUrbantz[i].contact.person = FluxMroad.TrajetList[i].NomArrivee;
                 FluxVsUrbantz[i].address.street = FluxMroad.TrajetList[i].Adresse1Arrivee;
@@ -136,218 +69,14 @@ namespace ApiUrbantz.UTILS
                 FluxVsUrbantz[i].dimensions.price = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotauxMontant.ChiffreAffaire.ToString().Replace(",", ".");
 
                 #region calcul temps de montage 
+
                 int tmps_poids = 0;
-                if(FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code=="LX")
-                     { tmps_poids = 15; }
-                if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LC") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "PDC"))
-                { tmps_poids = 15; }
-                if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LS") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LIV"))
-                { tmps_poids = 30; }
-                if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LD")
-                { tmps_poids = 30; }
-                if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "RS")
-                { tmps_poids = 30; }
-                if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LI") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "DMI"))
-                { tmps_poids = 45; }
-                if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LM")
-                { tmps_poids = 30; }
-                if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LE")
-                { tmps_poids = 15; }
+                tmps_poids = Utils.GetPoidsByPrestation(FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids, FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code);
 
-                if (FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids < 400)
-                {
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LX")
-                    { tmps_poids = 15; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LC") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "PDC"))
-                    { tmps_poids = 15; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LS") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LIV"))
-                    { tmps_poids = 20; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LD")
-                    { tmps_poids = 20; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "RS")
-                    { tmps_poids = 20; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LI") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "DMI"))
-                    { tmps_poids = 32; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LM")
-                    { tmps_poids = 20; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LE")
-                    { tmps_poids = 15; }
-
-                }
-                if (FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids < 300)
-                {
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LX")
-                    { tmps_poids = 10; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LC") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "PDC"))
-                    { tmps_poids = 10; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LS") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LIV"))
-                    { tmps_poids = 15; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LD")
-                    { tmps_poids = 15; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "RS")
-                    { tmps_poids = 15; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LI") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "DMI"))
-                    { tmps_poids = 27; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LM")
-                    { tmps_poids = 15; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LE")
-                    { tmps_poids = 15; }
-                    
-                }
-
-                if (FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids < 200)
-                {
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LX")
-                    { tmps_poids = 10; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LC") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "PDC"))
-                    { tmps_poids = 10; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LS") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LIV"))
-                    { tmps_poids = 15; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LD")
-                    { tmps_poids = 12; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "RS")
-                    { tmps_poids = 12; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LI") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "DMI"))
-                    { tmps_poids = 22; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LM")
-                    { tmps_poids = 12; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LE")
-                    { tmps_poids = 15; }
-
-                }
-                if (FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids < 150)
-                {
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LX")
-                    { tmps_poids = 7; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LC") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "PDC"))
-                    { tmps_poids = 7; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LS") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LIV"))
-                    { tmps_poids = 10; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LD")
-                    { tmps_poids = 12; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "RS")
-                    { tmps_poids = 12; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LI") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "DMI"))
-                    { tmps_poids = 22; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LM")
-                    { tmps_poids = 12; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LE")
-                    { tmps_poids = 10; }
-
-                }
-                if (FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids < 120)
-                {
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LX")
-                    { tmps_poids = 7; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LC") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "PDC"))
-                    { tmps_poids = 7; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LS") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LIV"))
-                    { tmps_poids = 10; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LD")
-                    { tmps_poids = 12; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "RS")
-                    { tmps_poids = 12; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LI") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "DMI"))
-                    { tmps_poids = 19; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LM")
-                    { tmps_poids = 12; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LE")
-                    { tmps_poids = 10; }
-
-                }
-                if (FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids < 100)
-                {
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LX")
-                    { tmps_poids = 7; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LC") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "PDC"))
-                    { tmps_poids = 7; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LS") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LIV"))
-                    { tmps_poids = 10; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LD")
-                    { tmps_poids = 10; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "RS")
-                    { tmps_poids = 10; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LI") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "DMI"))
-                    { tmps_poids = 15; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LM")
-                    { tmps_poids = 10; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LE")
-                    { tmps_poids = 10; }
-
-                }
-                if (FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids < 80)
-                {
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LX")
-                    { tmps_poids = 5; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LC") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "PDC"))
-                    { tmps_poids = 5; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LS") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LIV"))
-                    { tmps_poids = 7; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LD")
-                    { tmps_poids = 10; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "RS")
-                    { tmps_poids = 10; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LI") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "DMI"))
-                    { tmps_poids = 15; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LM")
-                    { tmps_poids = 10; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LE")
-                    { tmps_poids = 10; }
-
-                }
-                if (FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids < 50)
-                {
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LX")
-                    { tmps_poids = 5; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LC") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "PDC"))
-                    { tmps_poids = 5; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LS")
-                    { tmps_poids = 7; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LD")
-                    { tmps_poids = 7; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "RS")
-                    { tmps_poids = 7; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LI") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "DMI"))
-                    { tmps_poids = 10; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LM")
-                    { tmps_poids = 7; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LE")
-                    { tmps_poids = 10; }
-
-                }
-                if (FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids < 30)
-                {
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LX")
-                    { tmps_poids = 3; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LC") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "PDC"))
-                    { tmps_poids = 3; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LS")|| (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LIV"))
-                    { tmps_poids = 5; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LD")
-                    { tmps_poids = 5; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "RS")
-                    { tmps_poids = 5; }
-                    if ((FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LI") || (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "DMI"))
-                    { tmps_poids = 10; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LM")
-                    { tmps_poids = 5; }
-                    if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "LE")
-                    { tmps_poids = 10; }
-
-                }
-                if (FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code == "CC")
-                {
-                    tmps_poids = 3;
-                
-                }
-                    #endregion
-
-
-
-
+                #endregion
 
                     //en dur pour le moment 
-                    FluxVsUrbantz[i].serviceTime = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalTempsMontage+tmps_poids;
+                FluxVsUrbantz[i].serviceTime = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalTempsMontage+tmps_poids;
                 FluxVsUrbantz[i].dimensions.weight = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids.ToString().Replace(",","."); 
                 FluxVsUrbantz[i].dimensions.volume = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalVolume.ToString().Replace(",", ".");
                 FluxVsUrbantz[i].quantity = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalColis.ToString();
@@ -445,25 +174,7 @@ namespace ApiUrbantz.UTILS
 
         return response;
     }
-        public  static void email_send()
-        {
-            MailMessage mail = new MailMessage();
-            SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
-            mail.From = new MailAddress("n.mahfoudhi@vir.fr");
-            mail.To.Add("n.mahfoudhi@vir.fr");
-            mail.Subject = "Test Mail - 1";
-            mail.Body = "mail with attachment";
-            System.Net.Mail.Attachment attachment;
-            attachment = new System.Net.Mail.Attachment("C:/Users/n.mahfoudhi/source/repos/ApiUrbantz/ApiUrbantz/SaveFile/LOGFILE.txt");
-            mail.Attachments.Add(attachment);
 
-            SmtpServer.Port = 587;
-            SmtpServer.Credentials = new System.Net.NetworkCredential("n.mahfoudhi@vir.fr", "NAHED456789");
-            SmtpServer.EnableSsl = true;
-
-            SmtpServer.Send(mail);
-
-        }
     }
 }
 
