@@ -25,7 +25,7 @@ namespace ApiUrbantz.UTILS
             ListLivTermToAkanea ListLivTermToAk = new ListLivTermToAkanea();
 
          
-                #region calcul de code Evenement
+                
                 var CodEvmt = "";
             if ((TaskChangedModel.progress == "COMPLETED") && (TaskChangedModel.status == "DELIVERED"))
             {
@@ -90,9 +90,7 @@ namespace ApiUrbantz.UTILS
                 CodEvmt = "IE89";
             }
 
-            #endregion
-            #region Remplir le modèle flux livraison de Mroad à Urbantz
-
+        
             for (int i = 0; i<1; i++)
             {
 
@@ -147,7 +145,7 @@ namespace ApiUrbantz.UTILS
                 
             }
 
-            #endregion
+     
             //***
             ListLivTermToAk.LivTermToAkaneaList = FluxLivTerm;
             //***
@@ -166,7 +164,6 @@ namespace ApiUrbantz.UTILS
             List<LivTermToAkanea> FluxLivTerm = new List<LivTermToAkanea>();
             ListLivTermToAkanea ListLivTermToAk = new ListLivTermToAkanea();
 
-            #region Remplir le modèle flux livraison de Mroad à Urbantz
             for (int i = 0; i < TaskChangedModel.Count; i++)
             {
 
@@ -184,7 +181,7 @@ namespace ApiUrbantz.UTILS
                 FluxLivTerm[i].Photos = null;
                 FluxLivTerm[i].DateDebut= string.Concat(TaskChangedModel[i].actualTime.arrive.when.ToLocalTime().ToString("yyyy-MM-dd"), "T", (TaskChangedModel[i].actualTime.arrive.when.ToLocalTime()).ToString("HH:mm:00"));
             }
-            #endregion
+           
             ListLivTermToAk.LivTermToAkaneaList = FluxLivTerm;
             //***
             var json = new JavaScriptSerializer().Serialize(ListLivTermToAk.LivTermToAkaneaList);

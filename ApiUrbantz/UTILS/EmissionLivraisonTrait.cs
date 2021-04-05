@@ -21,7 +21,7 @@ namespace ApiUrbantz.UTILS
         public static async Task<HttpResponseMessage> GetTaskByBorderau(FluxAOptimiser FluxMroad)
         {
             //TODO faire le traitement 
-            #region creation de l'objet FluxLivUrbant contenant la liste de l'objet FluxMroad
+            
             ListFluxLivUrbants ListFluxLivUrbant = new ListFluxLivUrbants();
             List<FluxLivUrbantz> FluxVsUrbantz = new List<FluxLivUrbantz>();
             foreach (var item in FluxMroad.TrajetList)
@@ -29,9 +29,8 @@ namespace ApiUrbantz.UTILS
                 FluxVsUrbantz.Add(new FluxLivUrbantz());
             }
             ListFluxLivUrbant.ListFluxLivUrbantz = FluxVsUrbantz;
-            #endregion
-
-            #region Remplir le modèle flux livraison de Mroad à Urbantz
+            
+ 
             for (int i = 0; i < FluxVsUrbantz.Count; i++)
             {
                 
@@ -68,12 +67,11 @@ namespace ApiUrbantz.UTILS
                 FluxVsUrbantz[i].price = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotauxMontant.ChiffreAffaire;
                 FluxVsUrbantz[i].dimensions.price = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotauxMontant.ChiffreAffaire.ToString().Replace(",", ".");
 
-                #region calcul temps de montage 
-
+               
                 int tmps_poids = 0;
                 tmps_poids = Utils.GetPoidsByPrestation(FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids, FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code);
 
-                #endregion
+              
 
                     //en dur pour le moment 
                 FluxVsUrbantz[i].serviceTime = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalTempsMontage+tmps_poids;
@@ -120,8 +118,7 @@ namespace ApiUrbantz.UTILS
                 
             }
 
-            #endregion
-
+           
 
             var json = new JavaScriptSerializer().Serialize(ListFluxLivUrbant.ListFluxLivUrbantz);
                 json = json.Replace("\u0027", "");

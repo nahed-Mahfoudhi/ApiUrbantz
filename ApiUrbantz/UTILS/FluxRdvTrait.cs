@@ -21,7 +21,7 @@ namespace ApiUrbantz.UTILS
         public static async Task<HttpResponseMessage> FluxRdvVersNotico(List<ElementEnvoiSms> FluxRdv)
         {
             //TODO faire le traitement ici le mapping ....
-            #region creation de l'objet Interventions contenant le meme nombre d'intervention que le trajet list de l'objet Borderau
+           
             ListFluxLivUrbants FluxRdvUrb = new ListFluxLivUrbants();
             List<FluxLivUrbantz> FluxRdvListUrbz = new List<FluxLivUrbantz>();
 
