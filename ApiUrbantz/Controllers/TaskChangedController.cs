@@ -19,19 +19,6 @@ namespace ApiUrbantz.Models
 
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        // GET: api/FluxLivVsUrbantz
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET: api/FluxLivVsUrbantz/5
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-
         [HttpPost]
         public async Task<IHttpActionResult> Post([FromBody]dynamic jsonn)
         {
@@ -47,24 +34,12 @@ namespace ApiUrbantz.Models
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex.Message);
-                    logger.Error("====================================================================================");
+                    logger.Error(ex);
                 }
 
             })).Start();
             return (IHttpActionResult)Ok();
 
-
-        }
-
-        // PUT: api/FluxLivVsUrbantz/5
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE: api/FluxLivVsUrbantz/5
-        public void Delete(int id)
-        {
         }
     }
 }

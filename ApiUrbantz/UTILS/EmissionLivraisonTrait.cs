@@ -71,10 +71,17 @@ namespace ApiUrbantz.UTILS
                 int tmps_poids = 0;
                 tmps_poids = Utils.GetPoidsByPrestation(FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids, FluxMroad.TrajetList[i].CommandeEntete.Prestation.Code);
 
-              
-
-                    //en dur pour le moment 
-                FluxVsUrbantz[i].serviceTime = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalTempsMontage+tmps_poids;
+    
+                 //temps de service 
+                 if (FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalTempsMontage!=0)
+                {
+                    FluxVsUrbantz[i].serviceTime = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalTempsMontage/60 + tmps_poids;
+                }
+                else
+                {
+                    FluxVsUrbantz[i].serviceTime =tmps_poids;
+                }
+               
                 FluxVsUrbantz[i].dimensions.weight = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids.ToString().Replace(",","."); 
                 FluxVsUrbantz[i].dimensions.volume = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalVolume.ToString().Replace(",", ".");
                 FluxVsUrbantz[i].quantity = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalColis.ToString();
@@ -87,33 +94,35 @@ namespace ApiUrbantz.UTILS
                         {
                             barcode = FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CodeBarre,
                             description = FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.Article.Libelle,
-                            name = FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.LibelleRubrique,
+                            name = String.Concat(FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.Prestation.Code ?? string.Empty, " ", FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.LibelleRubrique),
                             type = "COL",
-                            quantity = FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.NbArticle.ToString(),
+                            quantity = FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.NbArticle != null ?
+                            FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.NbArticle.ToString() : string.Empty,
                             dimensions = new Dimensions()
                             {
                                 volume = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalVolume.ToString().Replace(",", "."),
                                 weight = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotaux.TotalPoids.ToString().Replace(",", "."),
-                                price = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotauxMontant.ChiffreAffaire !=null ? FluxMroad.TrajetList[i].CommandeEntete.CommandeTotauxMontant.ChiffreAffaire.ToString().Replace(",", ".") : string.Empty
+                                price = FluxMroad.TrajetList[i].CommandeEntete.CommandeTotauxMontant.ChiffreAffaire != null ? FluxMroad.TrajetList[i].CommandeEntete.CommandeTotauxMontant.ChiffreAffaire.ToString().Replace(",", ".") : string.Empty
                             },
                             labels = new List<string>() { FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.Prestation.Code }
 
                         });
-                    }else
-                    FluxVsUrbantz[i].items.Add(new Item
-                    {
-                        barcode = FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CodeBarre,
-                        description = FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.Article.Libelle,
-                        name = FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.LibelleRubrique,
-                        type = "COL",
-                        quantity = FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.NbArticle.ToString(),
-                        dimensions = new Dimensions() { volume = "",
-                        weight = "",
-                        price = "" 
+                    } else
+                        FluxVsUrbantz[i].items.Add(new Item
+                        {
+                            barcode = FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CodeBarre,
+                            description = FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.Article.Libelle,
+                            name = String.Concat(FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.Prestation.Code ?? string.Empty, " ", FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.LibelleRubrique),
+                            type = "COL",
+                            quantity = FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.NbArticle != null ? 
+                            FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.NbArticle.ToString() : string.Empty,
+                            dimensions = new Dimensions() { volume = "",
+                            weight = "",
+                            price = ""
                         },
-                        labels = new List<string>() { FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.Prestation.Code }
+                            labels = new List<string>() { FluxMroad.TrajetList[i].CommandeEntete.CommandeColisList[j].CommandeDetail.Prestation.Code }
 
-                    });
+                        }); ;
                 }
                 
             }

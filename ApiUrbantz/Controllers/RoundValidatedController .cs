@@ -18,7 +18,6 @@ namespace ApiUrbantz.Models
 
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        // GET: api/FluxLivVsUrbantz
 
         [HttpPost]
         public async Task<IHttpActionResult> Post([FromBody]dynamic jsonn)
@@ -37,8 +36,7 @@ namespace ApiUrbantz.Models
                 catch (Exception ex)
                 {
 
-                    logger.Error(ex.Message);
-                    logger.Error("====================================================================================");
+                    logger.Error(ex);
 
                 }
 

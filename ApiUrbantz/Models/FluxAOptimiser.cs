@@ -72,7 +72,7 @@ namespace ApiUrbantz.Models
     {
         public Article Article { get; set; }
         public string LibelleRubrique { get; set; }
-        public int NbArticle { get; set; }
+        public int? NbArticle { get; set; }
         public double Poids { get; set; }
         public Prestation Prestation { get; set; }
     public double Volume { get; set; }
